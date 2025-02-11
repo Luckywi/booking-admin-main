@@ -1,0 +1,148 @@
+/* Structure de base */
+.rbc-time-view {
+  border: none;
+  border-radius: 3px !important;
+  height: 100% !important;
+}
+
+.rbc-time-header.rbc-overflowing {
+  margin-right: 0 !important;
+}
+
+.rbc-timeslot-group {
+  border-bottom: 1px solid #000;
+}
+
+.rbc-time-gutter {
+  color: #000;
+}
+
+span{
+  font-weight: 100;
+}
+
+.rbc-toolbar-label{
+  color: #000;
+  font-weight: 100;
+}
+
+
+
+/* En-têtes */
+.rbc-header {
+  padding: 0 !important;
+  height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-bottom: none !important;
+  color: black;
+  background-color: white;
+}
+
+/* Navigation */
+.rbc-toolbar {
+  margin-bottom: 10px;
+}
+
+.rbc-btn-group {
+  margin: 5px 0;
+}
+
+.rbc-label{
+  color: black !important;
+
+}
+
+.rbc-btn-group button {
+  background: white !important;
+  color: black !important;
+  border: 1px solid black !important;
+  border-radius: 3px;
+  padding: 6px 12px;
+  margin: 0 2px !important;
+}
+
+.rbc-active{
+  background-color: white !important;
+  box-shadow: none !important;
+}
+
+/* Grille horaire */
+.rbc-timeslot-group {
+  min-height: 50px !important;
+  border-bottom: 1px solid black;
+}
+
+.rbc-time-gutter {
+  font-size: 12px;
+  color: black;
+  width: 80px !important;
+}
+
+.rbc-time-header-gutter {
+  width: 80px !important;
+}
+
+/* Événements */
+.rbc-events-container {
+  margin: 0 2px !important;
+}
+
+.rbc-event {
+  border: none;
+  padding: auto !important;
+  margin: auto !important;
+  border-radius: 3px !important;
+}
+
+.rbc-event-content {
+  font-size: 13px;
+}
+
+.rbc-event-label {
+  font-size: 12px;
+}
+
+/* Supprimer les éléments inutiles */
+.rbc-row-bg,
+.rbc-row-content,
+.rbc-allday-cell {
+  display: none !important;
+}
+
+
+
+.rbc-events-container {
+  border: none !important;
+}
+
+.rbc-time-column {
+  border: none !important;
+}
+
+/* Jour actuel */
+.rbc-today {
+  background-color: #fafafa !important;
+}
+
+/* Sélection */
+.rbc-slot-selection {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.rbc-time-content {
+  border-top: 1px solid black;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .rbc-toolbar {
+      flex-direction: column;
+  }
+  
+  .rbc-time-gutter,
+  .rbc-time-header-gutter {
+      width: 60px !important;
+  }
+}
