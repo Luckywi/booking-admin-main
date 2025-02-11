@@ -106,114 +106,112 @@ export default function StaffHoursModal({ isOpen, onClose, staffId, businessId }
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">
-            Paramètres du collaborateur : {staffData.firstName} {staffData.lastName}
-          </h2>
-        </div>
+<div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+ <div className="bg-white border border-black rounded-[10px] p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+   <h2 className="text-2xl font-bold text-black border-b border-black pb-4 mb-6">
+     Paramètres du collaborateur : {staffData.firstName} {staffData.lastName}
+   </h2>
 
-        {/* Section Couleur */}
-        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-          <h3 className="text-lg font-medium mb-4">Couleur des rendez-vous</h3>
-          <StaffColorPicker
-            color={staffData.color}
-            onChange={(color) => setStaffData(prev => ({ ...prev, color }))}
-          />
-        </div>
+   {/* Section Couleur */}
+   <div className="mb-6 border border-black rounded-[10px] p-4">
+     <h3 className="text-lg font-bold text-black mb-4">Couleur des rendez-vous</h3>
+     <StaffColorPicker
+       color={staffData.color}
+       onChange={(color) => setStaffData(prev => ({ ...prev, color }))}
+     />
+   </div>
 
-        {/* Section Horaires */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">Horaires de disponibilité</h3>
-          {orderedDays.map(({ key, label }) => {
-            const dayHours = hours[key as keyof typeof hours];
-            return (
-              <div 
-                key={key}
-                className="flex items-center space-x-4 py-3 border-b last:border-0"
-              >
-                <div className="w-32">
-                  <span className="font-medium">{label}</span>
-                </div>
-                <div className="flex-1 flex items-center space-x-4">
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={dayHours.isOpen}
-                      onChange={(e) => {
-                        setHours((prev: any) => ({
-                          ...prev,
-                          [key]: {
-                            ...prev[key],
-                            isOpen: e.target.checked
-                          }
-                        }));
-                      }}
-                      className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mr-2"
-                    />
-                    <span>Disponible</span>
-                  </label>
+   {/* Section Horaires */}
+   <div className="border border-black rounded-[10px] p-4">
+     <h3 className="text-lg font-bold text-black mb-4">Horaires de disponibilité</h3>
+     {orderedDays.map(({ key, label }) => {
+       const dayHours = hours[key as keyof typeof hours];
+       return (
+         <div 
+           key={key}
+           className="flex items-center space-x-4 py-3 border-b border-black last:border-0"
+         >
+           <div className="w-32">
+             <span className="font-medium text-black">{label}</span>
+           </div>
+           <div className="flex-1 flex items-center space-x-4">
+             <label className="flex items-center">
+               <input
+                 type="checkbox"
+                 checked={dayHours.isOpen}
+                 onChange={(e) => {
+                   setHours((prev: any) => ({
+                     ...prev,
+                     [key]: {
+                       ...prev[key],
+                       isOpen: e.target.checked
+                     }
+                   }));
+                 }}
+                 className="rounded-[10px] border-black text-black outline-none focus:outline-none focus:ring-0 mr-2"
+               />
+               <span className="text-black">Disponible</span>
+             </label>
 
-                  {dayHours.isOpen && (
-                    <>
-                      <input
-                        type="time"
-                        value={dayHours.openTime}
-                        onChange={(e) => {
-                          setHours((prev: any) => ({
-                            ...prev,
-                            [key]: {
-                              ...prev[key],
-                              openTime: e.target.value
-                            }
-                          }));
-                        }}
-                        className="border rounded-md p-1"
-                      />
-                      <span>-</span>
-                      <input
-                        type="time"
-                        value={dayHours.closeTime}
-                        onChange={(e) => {
-                          setHours((prev: any) => ({
-                            ...prev,
-                            [key]: {
-                              ...prev[key],
-                              closeTime: e.target.value
-                            }
-                          }));
-                        }}
-                        className="border rounded-md p-1"
-                      />
-                    </>
-                  )}
-                  
-                  {!dayHours.isOpen && (
-                    <span className="text-gray-500 italic">Non disponible</span>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
+             {dayHours.isOpen && (
+               <>
+                 <input
+                   type="time"
+                   value={dayHours.openTime}
+                   onChange={(e) => {
+                     setHours((prev: any) => ({
+                       ...prev,
+                       [key]: {
+                         ...prev[key],
+                         openTime: e.target.value
+                       }
+                     }));
+                   }}
+                   className="border border-black rounded-[10px] p-2 text-black outline-none focus:outline-none"
+                 />
+                 <span className="text-black">-</span>
+                 <input
+                   type="time"
+                   value={dayHours.closeTime}
+                   onChange={(e) => {
+                     setHours((prev: any) => ({
+                       ...prev,
+                       [key]: {
+                         ...prev[key],
+                         closeTime: e.target.value
+                       }
+                     }));
+                   }}
+                   className="border border-black rounded-[10px] p-2 text-black outline-none focus:outline-none"
+                 />
+               </>
+             )}
+             
+             {!dayHours.isOpen && (
+               <span className="text-black italic">Non disponible</span>
+             )}
+           </div>
+         </div>
+       );
+     })}
+   </div>
 
-        <div className="mt-6 flex justify-end">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md mr-2"
-          >
-            Annuler
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300"
-          >
-            {isSaving ? 'Sauvegarde...' : 'Sauvegarder'}
-          </button>
-        </div>
-      </div>
-    </div>
+   <div className="mt-6 flex justify-end gap-4">
+     <button
+       onClick={onClose}
+       className="px-4 py-2 border border-black text-black rounded-[10px] hover:bg-gray-50 transition-colors"
+     >
+       Annuler
+     </button>
+     <button
+       onClick={handleSave}
+       disabled={isSaving}
+       className="px-4 py-2 border border-black text-black rounded-[10px] hover:bg-gray-50 transition-colors disabled:opacity-50"
+     >
+       {isSaving ? 'Sauvegarde...' : 'Sauvegarder'}
+     </button>
+   </div>
+ </div>
+</div>
   );
 }

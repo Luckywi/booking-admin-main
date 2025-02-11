@@ -364,202 +364,198 @@ export default function AppointmentModal({ isOpen, onClose, onSuccess }: Appoint
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <h2 className="text-2xl font-bold mb-6">Nouveau Rendez-vous</h2>
+  <div className="bg-white border border-black rounded-[10px] p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+    <h2 className="text-2xl font-bold text-black mb-6">Nouveau Rendez-vous</h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Informations client */}
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Nom du client</label>
-              <input
-                type="text"
-                required
-                value={formData.clientName}
-                onChange={e => updateForm('clientName', e.target.value)}
-                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 ${errors.clientName ? 'border-red-500' : ''
-                  }`}
-              />
-              {errors.clientName && (
-                <p className="mt-1 text-sm text-red-500">{errors.clientName}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Email</label>
-              <input
-                type="email"
-                required
-                value={formData.clientEmail}
-                onChange={e => updateForm('clientEmail', e.target.value)}
-                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 ${errors.clientEmail ? 'border-red-500' : ''
-                  }`}
-              />
-              {errors.clientEmail && (
-                <p className="mt-1 text-sm text-red-500">{errors.clientEmail}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Téléphone</label>
-              <input
-                type="tel"
-                required
-                value={formData.clientPhone}
-                onChange={e => updateForm('clientPhone', e.target.value)}
-                className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 ${errors.clientPhone ? 'border-red-500' : ''
-                  }`}
-              />
-              {errors.clientPhone && (
-                <p className="mt-1 text-sm text-red-500">{errors.clientPhone}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Sélection du collaborateur */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Collaborateur</label>
-            <select
-              required
-              value={selectedStaff?.id || ''}
-              onChange={e => handleStaffChange(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            >
-              <option value="">Sélectionnez un collaborateur</option>
-              {staff.map(s => (
-                <option key={s.id} value={s.id}>{s.firstName} {s.lastName}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Services */}
-          {selectedStaff && (
-            <div className="space-y-4">
-              {categories.map(category => {
-                const categoryServices = services.filter(service => {
-                  const isInCategory = service.categoryId === category.id;
-                  const isStaffAuthorized = service.allowAllStaff || service.staffIds?.includes(selectedStaff.id);
-                  return isInCategory && isStaffAuthorized;
-                });
-
-                if (categoryServices.length === 0) return null;
-
-                return (
-                  <div key={category.id}>
-                    <h3 className="font-medium text-lg">{category.title}</h3>
-                    <div className="mt-2 grid grid-cols-1 gap-2">
-                      {categoryServices.map(service => (
-                        <div key={service.id} className="flex items-center">
-                          <input
-                            type="radio"
-                            id={service.id}
-                            name="service"
-                            value={service.id}
-                            checked={formData.serviceId === service.id}
-                            onChange={e => handleServiceChange(e.target.value)}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                          />
-                          <label htmlFor={service.id} className="ml-2 block text-sm text-gray-900">
-                            <span className="font-medium">{service.title}</span>
-                            <span className="text-sm text-gray-500 ml-2">
-                              {service.duration.hours}h{service.duration.minutes}min - {service.price}€
-                            </span>
-                            {service.description && (
-                              <span className="block text-xs text-gray-500">{service.description}</span>
-                            )}
-                          </label>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Informations client */}
+      <div className="space-y-4">
+        <div>
+          <label className="block text-sm font-medium text-black">Nom du client</label>
+          <input
+            type="text"
+            required
+            value={formData.clientName}
+            onChange={e => updateForm('clientName', e.target.value)}
+            className={`mt-1 block w-full border border-black rounded-[10px] p-2 text-black placeholder-black focus:outline-none ${errors.clientName ? 'border-[#f87171]' : ''}`}
+          />
+          {errors.clientName && (
+            <p className="mt-1 text-sm text-[#f87171]">{errors.clientName}</p>
           )}
+        </div>
 
-          {/* Date et heure */}
-          {selectedService && (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Date</label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    readOnly
-                    value={formData.date ? format(new Date(formData.date), 'dd/MM/yyyy', { locale: fr }) : ''}
-                    onClick={() => setShowDatePicker(!showDatePicker)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 cursor-pointer"
-                    placeholder="Sélectionnez une date"
-                  />
-                  {showDatePicker && (
-                    <div className="absolute z-50 mt-1">
-                      <DatePicker
-                        selectedDate={formData.date}
-                        onDateSelect={(date) => {
-                          const formattedDate = format(date, 'yyyy-MM-dd');
-                          updateForm('date', formattedDate);
-                          if (selectedService) {
-                            generateTimeSlots(formattedDate, selectedService);
-                          }
-                          setShowDatePicker(false);
-                        }}
-                        isDateAvailable={isDateAvailable}
+        <div>
+          <label className="block text-sm font-medium text-black">Email</label>
+          <input
+            type="email"
+            required
+            value={formData.clientEmail}
+            onChange={e => updateForm('clientEmail', e.target.value)}
+            className={`mt-1 block w-full border border-black rounded-[10px] p-2 text-black placeholder-black focus:outline-none ${errors.clientEmail ? 'border-[#f87171]' : ''}`}
+          />
+          {errors.clientEmail && (
+            <p className="mt-1 text-sm text-[#f87171]">{errors.clientEmail}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-black">Téléphone</label>
+          <input
+            type="tel"
+            required
+            value={formData.clientPhone}
+            onChange={e => updateForm('clientPhone', e.target.value)}
+            className={`mt-1 block w-full border border-black rounded-[10px] p-2 text-black placeholder-black focus:outline-none ${errors.clientPhone ? 'border-[#f87171]' : ''}`}
+          />
+          {errors.clientPhone && (
+            <p className="mt-1 text-sm text-[#f87171]">{errors.clientPhone}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Sélection du collaborateur */}
+      <div>
+        <label className="block text-sm font-medium text-black">Collaborateur</label>
+        <select
+          required
+          value={selectedStaff?.id || ''}
+          onChange={e => handleStaffChange(e.target.value)}
+          className="mt-1 block w-full border border-black rounded-[10px] p-2 text-black focus:outline-none"
+        >
+          <option value="">Sélectionnez un collaborateur</option>
+          {staff.map(s => (
+            <option key={s.id} value={s.id}>{s.firstName} {s.lastName}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Services */}
+      {selectedStaff && (
+        <div className="space-y-4">
+          {categories.map(category => {
+            const categoryServices = services.filter(service => {
+              const isInCategory = service.categoryId === category.id;
+              const isStaffAuthorized = service.allowAllStaff || service.staffIds?.includes(selectedStaff.id);
+              return isInCategory && isStaffAuthorized;
+            });
+
+            if (categoryServices.length === 0) return null;
+
+            return (
+              <div key={category.id} className="border border-black rounded-[10px] p-4">
+                <h3 className="font-medium text-lg text-black">{category.title}</h3>
+                <div className="mt-2 grid grid-cols-1 gap-2">
+                  {categoryServices.map(service => (
+                    <div key={service.id} className="flex items-center">
+                      <input
+                        type="radio"
+                        id={service.id}
+                        name="service"
+                        value={service.id}
+                        checked={formData.serviceId === service.id}
+                        onChange={e => handleServiceChange(e.target.value)}
+                        className="h-4 w-4 border-black text-black focus:ring-0"
                       />
+                      <label htmlFor={service.id} className="ml-2 block text-black">
+                        <span className="font-medium">{service.title}</span>
+                        <span className="ml-2">
+                          {service.duration.hours}h{service.duration.minutes}min - {service.price}€
+                        </span>
+                        {service.description && (
+                          <span className="block text-xs">{service.description}</span>
+                        )}
+                      </label>
                     </div>
-                  )}
+                  ))}
                 </div>
               </div>
+            );
+          })}
+        </div>
+      )}
 
-
-              {formData.date && availableSlots.length > 0 && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Heure</label>
-                  <select
-                    required
-                    value={formData.time}
-                    onChange={e => updateForm('time', e.target.value)}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                  >
-                    <option value="">Sélectionnez une heure</option>
-                    {availableSlots.map(slot => (
-                      <option key={slot} value={slot}>{slot}</option>
-                    ))}
-                  </select>
+      {/* Date et heure */}
+      {selectedService && (
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-black">Date</label>
+            <div className="relative">
+              <input
+                type="text"
+                readOnly
+                value={formData.date ? format(new Date(formData.date), 'dd/MM/yyyy', { locale: fr }) : ''}
+                onClick={() => setShowDatePicker(!showDatePicker)}
+                className="mt-1 block w-full border border-black rounded-[10px] p-2 text-black placeholder-black focus:outline-none cursor-pointer"
+                placeholder="Sélectionnez une date"
+              />
+              {showDatePicker && (
+                <div className="absolute z-50 mt-1">
+                  <DatePicker
+                    selectedDate={formData.date}
+                    onDateSelect={(date) => {
+                      const formattedDate = format(date, 'yyyy-MM-dd');
+                      updateForm('date', formattedDate);
+                      if (selectedService) {
+                        generateTimeSlots(formattedDate, selectedService);
+                      }
+                      setShowDatePicker(false);
+                    }}
+                    isDateAvailable={isDateAvailable}
+                  />
                 </div>
               )}
             </div>
+          </div>
+
+          {formData.date && availableSlots.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-black">Heure</label>
+              <select
+                required
+                value={formData.time}
+                onChange={e => updateForm('time', e.target.value)}
+                className="mt-1 block w-full border border-black rounded-[10px] p-2 text-black focus:outline-none"
+              >
+                <option value="">Sélectionnez une heure</option>
+                {availableSlots.map(slot => (
+                  <option key={slot} value={slot}>{slot}</option>
+                ))}
+              </select>
+            </div>
           )}
+        </div>
+      )}
 
-          {/* Notes */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Notes (optionnel)</label>
-            <textarea
-              value={formData.notes || ''}
-              onChange={e => updateForm('notes', e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-              rows={3}
-            />
-          </div>
-
-          {/* Boutons */}
-          <div className="flex justify-end space-x-3 mt-6">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              disabled={isSubmitting || !formData.serviceId || !formData.date || !formData.time}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400"
-            >
-              {isSubmitting ? 'Création...' : 'Créer le rendez-vous'}
-            </button>
-          </div>
-        </form>
+      {/* Notes */}
+      <div>
+        <label className="block text-sm font-medium text-black">Notes (optionnel)</label>
+        <textarea
+          value={formData.notes || ''}
+          onChange={e => updateForm('notes', e.target.value)}
+          className="mt-1 block w-full border border-black rounded-[10px] p-2 text-black focus:outline-none"
+          rows={3}
+        />
       </div>
-    </div>
+
+      {/* Boutons */}
+      <div className="flex justify-end space-x-3 mt-6">
+        <button
+          type="button"
+          onClick={handleClose}
+          className="px-4 py-2 border border-black text-black rounded-[10px] hover:bg-gray-50 transition-colors"
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          disabled={isSubmitting || !formData.serviceId || !formData.date || !formData.time}
+          className="px-4 py-2 border border-black text-black rounded-[10px] hover:bg-gray-50 transition-colors disabled:opacity-50"
+        >
+          {isSubmitting ? 'Création...' : 'Créer le rendez-vous'}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
   );
 }

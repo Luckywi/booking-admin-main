@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { deleteDoc, doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { Appointment } from '@/types/appointment';
 
@@ -21,15 +21,14 @@ export default function AppointmentDetailsModal({
   const [appointment, setAppointment] = useState<Appointment | null>(null);
   const [serviceName, setServiceName] = useState<string>("");
   const [staffName, setStaffName] = useState<string>("");
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   useEffect(() => {
     const fetchAppointmentDetails = async () => {
       if (!appointmentId) return;
 
       try {
-        // Récupérer les détails du rendez-vous
         const appointmentDoc = await getDoc(doc(db, 'appointments', appointmentId));
         if (!appointmentDoc.exists()) return;
         
@@ -52,7 +51,6 @@ export default function AppointmentDetailsModal({
         
         setAppointment(appointmentData);
 
-        // Récupérer les détails du service
         if (appointmentData.serviceId) {
           const serviceDoc = await getDoc(doc(db, 'services', appointmentData.serviceId));
           if (serviceDoc.exists()) {
@@ -60,7 +58,6 @@ export default function AppointmentDetailsModal({
           }
         }
 
-        // Récupérer les détails du collaborateur
         const staffDoc = await getDoc(doc(db, 'staff', appointmentData.staffId));
         if (staffDoc.exists()) {
           const staff = staffDoc.data();
@@ -76,19 +73,23 @@ export default function AppointmentDetailsModal({
     }
   }, [appointmentId, isOpen]);
 
-  const handleDelete = async () => {
+  const handleCancel = async () => {
     if (!appointment) return;
     
-    setIsDeleting(true);
+    setIsUpdating(true);
     try {
-      await deleteDoc(doc(db, 'appointments', appointment.id));
-      onDelete();
-      onClose();
+      const appointmentRef = doc(db, 'appointments', appointment.id);
+      await updateDoc(appointmentRef, {
+        status: 'cancelled',
+        updatedAt: new Date()
+      });
+      
+      setAppointment(prev => prev ? { ...prev, status: 'cancelled' } : null);
+      setShowCancelConfirm(false);
     } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
+      console.error('Erreur lors de l\'annulation:', error);
     } finally {
-      setIsDeleting(false);
-      setShowDeleteConfirm(false);
+      setIsUpdating(false);
     }
   };
 
@@ -96,111 +97,139 @@ export default function AppointmentDetailsModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">
-            Détails du rendez-vous
-            {appointment.status === 'cancelled' && (
-              <span className="ml-2 text-sm text-red-500">Annulé</span>
-            )}
-          </h2>
-        </div>
+      <div className="bg-white border border-black rounded-[10px] p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+        {!showCancelConfirm ? (
+          <>
+            <h2 className="text-2xl font-bold text-black border-b border-black pb-4 mb-6">
+              Détails du rendez-vous
+              {appointment.status === 'cancelled' && (
+                <span className="ml-2 text-lg">(Annulé)</span>
+              )}
+            </h2>
 
-        <div className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-gray-500">Client</p>
-              <p className="font-medium">{appointment.clientName}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Collaborateur</p>
-              <p className="font-medium">{staffName}</p>
+            <div className="space-y-8">
+
+          {/* Section 1: Client et Collaborateur */}
+          <div className="border border-black rounded-[10px] p-4">
+            <div className="grid grid-cols-2 gap-8">
+              <div>
+                <p className="text-sm font-bold text-black mb-2">Client</p>
+                <p className="text-lg text-black">{appointment.clientName}</p>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-black mb-2">Collaborateur</p>
+                <p className="text-lg text-black">{staffName}</p>
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-gray-500">Service</p>
-              <p className="font-medium">{serviceName}</p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Statut</p>
-              <p className="font-medium capitalize">
-                {appointment.status === 'confirmed' ? 'Confirmé' : 
-                 appointment.status === 'pending' ? 'En attente' : 'Annulé'}
-              </p>
+          {/* Section 2: Service et Statut */}
+<div className="border border-black rounded-[10px] p-4">
+ <div className="grid grid-cols-2 gap-8">
+   <div>
+     <p className="text-sm font-bold text-black mb-2">Service</p>
+     <p className="text-lg text-black">{serviceName}</p>
+   </div>
+   <div>
+     <p className="text-sm font-bold text-black mb-2">Statut</p>
+     <div>
+       <span className={`px-4 py-1 text-xs border rounded-[10px] font-medium inline-block w-24 text-center
+         ${appointment.status === 'confirmed' 
+           ? 'border-[#4ade80] text-[#4ade80]' 
+           : appointment.status === 'cancelled'
+           ? 'border-[#f87171] text-[#f87171]' 
+           : 'border-black text-black'}`}
+       >
+         {appointment.status === 'confirmed' ? 'Confirmé' : 
+          appointment.status === 'pending' ? 'En attente' : 'Annulé'}
+       </span>
+     </div>
+   </div>
+ </div>
+</div>
+
+          {/* Section 3: Date et Horaire */}
+          <div className="border border-black rounded-[10px] p-4">
+            <div className="grid grid-cols-2 gap-8">
+              <div>
+                <p className="text-sm font-bold text-black mb-2">Date</p>
+                <p className="text-lg text-black">
+                  {format(appointment.start, 'EEEE d MMMM yyyy', { locale: fr })}
+                </p>
+              </div>
+              <div>
+                <p className="text-sm font-bold text-black mb-2">Horaire</p>
+                <p className="text-lg text-black">
+                  {format(appointment.start, 'HH:mm')} - {format(appointment.end, 'HH:mm')}
+                </p>
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-gray-500">Date</p>
-              <p className="font-medium">
-                {format(appointment.start, 'EEEE d MMMM yyyy', { locale: fr })}
-              </p>
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Horaire</p>
-              <p className="font-medium">
-                {format(appointment.start, 'HH:mm')} - {format(appointment.end, 'HH:mm')}
-              </p>
-            </div>
+          {/* Section 4: Contact */}
+          <div className="border border-black rounded-[10px] p-4">
+            <p className="text-sm font-bold text-black mb-2">Contact</p>
+            <p className="text-lg text-black">{appointment.clientEmail}</p>
+            <p className="text-lg text-black">{appointment.clientPhone}</p>
           </div>
 
-          <div>
-            <p className="text-sm text-gray-500">Contact</p>
-            <p className="font-medium">{appointment.clientEmail}</p>
-            <p className="font-medium">{appointment.clientPhone}</p>
-          </div>
-
+          {/* Section 5: Notes (if any) */}
           {appointment.notes && (
-            <div>
-              <p className="text-sm text-gray-500">Notes</p>
-              <p className="font-medium whitespace-pre-line">{appointment.notes}</p>
+            <div className="border border-black rounded-[10px] p-4">
+              <p className="text-sm font-bold text-black mb-2">Notes</p>
+              <p className="text-lg text-black whitespace-pre-line">{appointment.notes}</p>
             </div>
           )}
 
-          <div className="flex justify-end space-x-3 pt-4">
-            {!showDeleteConfirm ? (
-              <>
-                <button
-                  onClick={() => setShowDeleteConfirm(true)}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                >
-                  Supprimer
-                </button>
+{/* Boutons */}
+<div className="flex justify-end gap-4 pt-4">
+                {appointment.status !== 'cancelled' && (
+                  <button
+                    onClick={() => setShowCancelConfirm(true)}
+                    className="px-4 py-2 border border-black text-black rounded-[10px] hover:bg-gray-50 transition-colors"
+                  >
+                    Annuler le rendez-vous
+                  </button>
+                )}
                 <button
                   onClick={onClose}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="px-4 py-2 border border-black text-black rounded-[10px] hover:bg-gray-50 transition-colors"
                 >
                   Fermer
                 </button>
-              </>
-            ) : (
-              <div className="bg-red-50 p-4 rounded-md">
-                <p className="text-sm text-red-800 mb-4">
-                  Êtes-vous sûr de vouloir supprimer ce rendez-vous ? Cette action ne peut pas être annulée.
-                </p>
-                <div className="flex justify-end space-x-3">
-                  <button
-                    onClick={() => setShowDeleteConfirm(false)}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    disabled={isDeleting}
-                  >
-                    Annuler
-                  </button>
-                  <button
-                    onClick={handleDelete}
-                    className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:bg-red-300"
-                    disabled={isDeleting}
-                  >
-                    {isDeleting ? 'Suppression...' : 'Confirmer la suppression'}
-                  </button>
-                </div>
               </div>
-            )}
+            </div>
+          </>
+        ) : (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-black border-b border-black pb-4">
+              Confirmation d'annulation
+            </h2>
+            
+            <div className="border border-black rounded-[10px] p-4">
+              <p className="text-lg text-black mb-6">
+                Êtes-vous sûr de vouloir annuler ce rendez-vous ?
+              </p>
+              
+              <div className="flex justify-end gap-4">
+                <button
+                  onClick={() => setShowCancelConfirm(false)}
+                  className="px-4 py-2 border border-black text-black rounded-[10px] hover:bg-gray-50 transition-colors"
+                  disabled={isUpdating}
+                >
+                  Retour
+                </button>
+                <button
+                  onClick={handleCancel}
+                  className="px-4 py-2 border border-black text-black rounded-[10px] hover:bg-gray-50 transition-colors disabled:opacity-50"
+                  disabled={isUpdating}
+                >
+                  {isUpdating ? 'Annulation...' : 'Confirmer l\'annulation'}
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

@@ -19,7 +19,7 @@ export default function AddStaffModal({ isOpen, onClose, onSuccess }: AddStaffMo
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
-    color: '#FF5733', // Couleur par défaut
+    color: '#FF6B6B', // Couleur par défaut
   });
 
   if (!isOpen) return null;
@@ -43,7 +43,7 @@ export default function AddStaffModal({ isOpen, onClose, onSuccess }: AddStaffMo
       setFormData({
         firstName: '',
         lastName: '',
-        color: '#FF5733',
+        color: '#FF6B6B',
       });
       onClose();
     } catch (error) {
@@ -55,64 +55,68 @@ export default function AddStaffModal({ isOpen, onClose, onSuccess }: AddStaffMo
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4">Ajouter un collaborateur</h2>
+  <div className="bg-white border border-black rounded-[10px] p-6 w-full max-w-md">
+    <h2 className="text-2xl font-bold text-black border-b border-black pb-4 mb-6">
+      Ajouter un collaborateur
+    </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Prénom
-              </label>
-              <input
-                type="text"
-                value={formData.firstName}
-                onChange={(e) => setFormData({...formData, firstName: e.target.value})}
-                className="w-full p-2 border rounded-md"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Nom
-              </label>
-              <input
-                type="text"
-                value={formData.lastName}
-                onChange={(e) => setFormData({...formData, lastName: e.target.value})}
-                className="w-full p-2 border rounded-md"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Ajout du sélecteur de couleur */}
-          <div className="mt-4">
-            <StaffColorPicker
-              color={formData.color}
-              onChange={(color) => setFormData({...formData, color})}
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="border border-black rounded-[10px] p-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-bold text-black mb-2">
+              Prénom
+            </label>
+            <input
+              type="text"
+              value={formData.firstName}
+              onChange={(e) => setFormData({...formData, firstName: e.target.value})}
+              className="w-full p-2 border border-black rounded-[10px] text-black placeholder-black focus:outline-none"
+              required
             />
           </div>
-
-          <div className="flex justify-end space-x-2 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
-              disabled={isSubmitting}
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Ajout...' : 'Ajouter'}
-            </button>
+          <div>
+            <label className="block text-sm font-bold text-black mb-2">
+              Nom
+            </label>
+            <input
+              type="text"
+              value={formData.lastName}
+              onChange={(e) => setFormData({...formData, lastName: e.target.value})}
+              className="w-full p-2 border border-black rounded-[10px] text-black placeholder-black focus:outline-none"
+              required
+            />
           </div>
-        </form>
+        </div>
       </div>
-    </div>
+
+      {/* Ajout du sélecteur de couleur */}
+      <div className="border border-black rounded-[10px] p-4">
+        <StaffColorPicker
+          color={formData.color}
+          onChange={(color) => setFormData({...formData, color})}
+        />
+      </div>
+
+      <div className="flex justify-end gap-4 pt-4">
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-4 py-2 border border-black text-black rounded-[10px] hover:bg-gray-50 transition-colors"
+          disabled={isSubmitting}
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          className="px-4 py-2 border border-black text-black rounded-[10px] hover:bg-gray-50 transition-colors disabled:opacity-50"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Ajout...' : 'Ajouter'}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
   );
 }

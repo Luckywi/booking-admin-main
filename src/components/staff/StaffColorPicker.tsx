@@ -6,15 +6,15 @@ interface StaffColorPickerProps {
 }
 
 const availableColors = [
-    '#2563EB', // Bleu royal profond
-    '#7C3AED', // Violet profond
-    '#059669', // Vert émeraude
-    '#DC2626', // Rouge rubis
-    '#D97706', // Orange ambré
-    '#7E22CE', // Violet améthyste
-    '#0891B2', // Bleu turquoise
-    '#BE185D', // Rose framboise
-  ];
+  '#FF6B6B', // Rouge corail vif
+  '#00C1D4', // Cyan vif et moderne
+  '#FF9F1C', // Orange vif
+  '#6B5B95', // Violet pervenche
+  '#FFE66D', // Jaune moutarde
+  '#45B8AC', // Vert menthe
+  '#FF3860', // Rose fuchsia
+  '#A8E6CF'  // Vert pastel
+];
 
 export default function StaffColorPicker({ color, onChange }: StaffColorPickerProps) {
   return (

@@ -80,64 +80,64 @@ export default function DatePicker({ selectedDate, onDateSelect, isDateAvailable
   };
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow">
-      <div className="flex items-center justify-between mb-4">
-        <button
-          onClick={handlePrevMonth}
-          className="p-1 hover:bg-gray-100 rounded-full"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </button>
-        
-        <span className="text-lg font-semibold">
-          {format(currentMonth, 'MMMM yyyy', { locale: fr })}
-        </span>
+    <div className="bg-white border border-black rounded-[10px] p-4">
+  <div className="flex items-center justify-between mb-4">
+    <button
+      onClick={handlePrevMonth}
+      className="p-1 hover:bg-gray-50 rounded-[10px] border border-black"
+    >
+      <ChevronLeft className="h-5 w-5 text-black" />
+    </button>
+    
+    <span className="text-lg font-semibold text-black">
+      {format(currentMonth, 'MMMM yyyy', { locale: fr })}
+    </span>
 
-        <button
-          onClick={handleNextMonth}
-          className="p-1 hover:bg-gray-100 rounded-full"
-        >
-          <ChevronRight className="h-5 w-5" />
-        </button>
+    <button
+      onClick={handleNextMonth}
+      className="p-1 hover:bg-gray-50 rounded-[10px] border border-black"
+    >
+      <ChevronRight className="h-5 w-5 text-black" />
+    </button>
+  </div>
+
+  <div className="grid grid-cols-7 mb-2">
+    {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map(day => (
+      <div key={day} className="text-center text-sm font-medium text-black">
+        {day}
       </div>
+    ))}
+  </div>
 
-      <div className="grid grid-cols-7 mb-2">
-        {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map(day => (
-          <div key={day} className="text-center text-sm font-medium text-gray-700">
-            {day}
-          </div>
-        ))}
-      </div>
+  <div className="grid grid-cols-7 gap-1">
+    {calendar.map((week, weekIndex) =>
+      week.map((date, dayIndex) => {
+        if (!date) {
+          return <div key={`empty-${weekIndex}-${dayIndex}`} className="p-2" />;
+        }
 
-      <div className="grid grid-cols-7 gap-1">
-        {calendar.map((week, weekIndex) =>
-          week.map((date, dayIndex) => {
-            if (!date) {
-              return <div key={`empty-${weekIndex}-${dayIndex}`} className="p-2" />;
-            }
+        const isToday = isSameDay(date, new Date());
+        const isSelected = selectedDate && isSameDay(date, parseISO(selectedDate));
+        const isAvailable = isDateAvailable(date);
 
-            const isToday = isSameDay(date, new Date());
-            const isSelected = selectedDate && isSameDay(date, parseISO(selectedDate));
-            const isAvailable = isDateAvailable(date);
+        return (
+          <button
+  key={date.toISOString()}
+  onClick={() => isAvailable && onDateSelect(date)}
+  disabled={!isAvailable}
+  className={`
+    p-2 text-center text-sm w-8 h-8 mx-auto rounded-[10px] transition-colors
+    ${isSelected ? 'border border-black' : ''}
+    ${!isAvailable ? 'text-gray-300 cursor-not-allowed' : 'text-black hover:border hover:border-black'}
+  `}
+>
+  {format(date, 'd')}
+</button>
 
-            return (
-              <button
-                key={date.toISOString()}
-                onClick={() => isAvailable && onDateSelect(date)}
-                disabled={!isAvailable}
-                className={`
-                  p-2 text-center text-sm rounded-full w-8 h-8 mx-auto
-                  ${isSelected ? 'bg-blue-500 text-white' : ''}
-                  ${isToday && !isSelected ? 'border border-blue-500' : ''}
-                  ${!isAvailable ? 'text-gray-400 cursor-not-allowed' : 'hover:bg-gray-100'}
-                `}
-              >
-                {format(date, 'd')}
-              </button>
-            );
-          })
-        )}
-      </div>
-    </div>
+        );
+      })
+    )}
+  </div>
+</div>
   );
 }
