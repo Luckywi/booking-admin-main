@@ -142,68 +142,64 @@ export default function ServicesPage() {
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold">Gestion des Services</h1>
-        <p className="text-gray-600">Gérez vos services et leurs catégories</p>
-      </div>
+    <div className="p-6 bg-white rounded-[10px]">
+  <div className="mb-8">
+    <h1 className="text-2xl font-bold text-black">Gestion des Services</h1>
+  </div>
 
       {/* Section Collaborateurs */}
       <div className="mb-8">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Collaborateurs</h2>
+  <div className="flex justify-between items-center mb-4">
+    <h2 className="text-xl font-bold text-black">Collaborateurs</h2>
+    <button
+      onClick={() => setIsAddStaffModalOpen(true)}
+      className="px-4 py-2 border border-black bg-white text-black rounded-[10px] hover:bg-gray-50 transition-colors text-sm flex items-center"
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        className="h-4 w-4 mr-1"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+      >
+        <path
+          fillRule="evenodd"
+          d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+          clipRule="evenodd"
+        />
+      </svg>
+      Ajouter
+    </button>
+  </div>
+
+
+  <div className="bg-white border border-black rounded-[10px] p-4">
+  {staff.length === 0 ? (
+    <p className="text-black text-center py-4">Aucun collaborateur</p>
+  ) : (
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+      {staff.map((member) => (
+        <div
+          key={member.id}
+          className="border border-black rounded-[10px] p-4 relative group"
+        >
           <button
-            onClick={() => setIsAddStaffModalOpen(true)}
-            className="bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-colors text-sm flex items-center"
+            onClick={() => handleDeleteStaff(member.id)}
+            className="absolute right-2 top-2 p-1.5 text-black hover:text-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4 mr-1"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Ajouter
+            <Trash2 className="h-4 w-4" />
           </button>
+          <div className="w-16 h-16 border border-black rounded-full mx-auto mb-2 flex items-center justify-center text-xl  text-black font-semibold">
+            {member.firstName[0]}
+          </div>
+          <p className="text-center font-medium truncate text-black">{member.firstName}</p>
+          <button
+  onClick={() => setSelectedStaffForHours(member)}
+  className="mt-2 w-full text-sm text-black py-1 px-2 hover:border hover:border-black rounded-[10px] transition-all"
+>
+  Gérer les disponibilités
+</button>
         </div>
-
-
-        <div className="bg-white rounded-lg shadow p-4">
-          {staff.length === 0 ? (
-            <p className="text-gray-500 text-center py-4">Aucun collaborateur</p>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {staff.map((member) => (
-                <div
-                  key={member.id}
-                  className="bg-gray-50 rounded-lg p-4 relative group"
-                >
-                  <button
-                    onClick={() => handleDeleteStaff(member.id)}
-                    className="absolute right-2 top-2 p-1.5 text-gray-400 hover:text-red-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                  <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-2 flex items-center justify-center text-xl font-semibold">
-                    {member.firstName[0]}{member.lastName[0]}
-                  </div>
-                  <p className="text-center font-medium truncate">{member.firstName}</p>
-                  <p className="text-center text-sm text-gray-600 truncate">{member.lastName}</p>
-
-                  {/* Bouton de gestion des disponibilités */}
-                  <button
-                    onClick={() => setSelectedStaffForHours(member)}
-                    className="mt-2 w-full text-sm text-blue-600 hover:text-blue-700 py-1 px-2 rounded-md hover:bg-blue-50 transition-colors"
-                  >
-                    Gérer les disponibilités
-                  </button>
-                </div>
-              ))}
+      ))}
 
 
 
@@ -222,90 +218,93 @@ export default function ServicesPage() {
 
       {/* Section Services */}
       <div className="space-y-6">
-        {loading ? (
-          <div className="text-gray-500">Chargement des sections...</div>
-        ) : sections.length === 0 ? (
-          <div className="text-gray-500">Aucune section créée</div>
-        ) : (
-          sections.map((section) => (
-            <div
-              key={section.id}
-              className="bg-white p-6 rounded-lg shadow"
-            >
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">{section.title}</h2>
-                <button
-                  onClick={() => setEditingSection(section)}
-                  className="p-2 text-gray-600 hover:bg-gray-100 rounded-full"
-                >
-                  <Pencil className="h-4 w-4" />
-                </button>
-              </div>
+      <div className="flex justify-between items-center mb-4">
+    <h2 className="text-xl font-bold text-black">Services</h2>
+    <button
+    onClick={() => setIsAddSectionModalOpen(true)}
+    className="border border-black text-black px-4 py-2 rounded-[10px] hover:bg-gray-50 transition-colors flex items-center"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-5 w-5 mr-2"
+      viewBox="0 0 20 20"
+      fill="currentColor"
+    >
+      <path
+        fillRule="evenodd"
+        d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
+        clipRule="evenodd"
+      />
+    </svg>
+    Ajouter une section de service
+  </button>
+  </div>
+  {loading ? (
+    <div className="text-black">Chargement des sections...</div>
+  ) : sections.length === 0 ? (
+    <div className="text-black">Aucune section créée</div>
+  ) : (
+    sections.map((section) => (
+      <div
+        key={section.id}
+        className="bg-white border border-black p-6 rounded-[10px]"
+      >
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-semibold text-black">{section.title}</h2>
+          <button
+            onClick={() => setEditingSection(section)}
+            className="text-black hover:border hover:border-black text-sm flex items-center rounded-[10px] px-4 py-2 transition-all"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+        </div>
 
-              <div className="space-y-3 mb-4">
-                {services[section.id]?.length > 0 ? (
-                  services[section.id].map((service) => (
-                    <div
-                      key={service.id}
-                      className="bg-gray-50 p-4 rounded-md relative group"
-                    >
-                      <button
-                        onClick={() => setEditingService(service)}
-                        className="absolute right-2 top-2 p-2 text-gray-600 hover:bg-gray-200 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </button>
-
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-medium">{service.title}</h3>
-                          <p className="text-sm text-gray-600">{service.description}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-medium">{service.price} €</p>
-                          <p className="text-sm text-gray-600">
-                            {service.duration.hours}h {service.duration.minutes}min
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-gray-500">Aucun service dans cette section</p>
-                )}
-              </div>
-
-              <button
-                className="text-blue-600 hover:text-blue-700 text-sm flex items-center"
-                onClick={() => setSelectedCategory({ id: section.id, title: section.title })}
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 mr-1"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                Ajouter un service
-              </button>
-            </div>
-          ))
-        )}
+        <div className="space-y-3 mb-4">
+          {services[section.id]?.length > 0 ? (
+            services[section.id].map((service) => (
+              <div
+  key={service.id}
+  className="border border-black p-4 rounded-[10px] relative"
+>
+  <div className="flex justify-between items-start">
+    <div className="flex-1">
+    <div className="flex justify-between items-start gap-4">
+    <div className="w-[60%]">
+      <h3 className="font-medium text-black text-lg">{service.title}</h3>
+      <p className="text-sm text-black mt-1">{service.description}</p>
+    </div>        
+        <div className="flex items-center ml-4">
+          <div className="text-right mr-4">
+            <p className="font-medium text-black text-lg">{service.price} €</p>
+            <p className="text-sm text-black">
+              {service.duration.hours}h {service.duration.minutes}min
+            </p>
+          </div>
+          
+          <button
+            onClick={() => setEditingService(service)}
+            className="text-black hover:border hover:border-black text-sm flex items-center rounded-[10px] px-4 py-2 transition-all"
+          >
+            <Pencil className="h-4 w-4" />
+          </button>
+        </div>
       </div>
+    </div>
+  </div>
+</div>
+            ))
+          ) : (
+            <p className="text-sm text-black">Aucun service dans cette section</p>
+          )}
+        </div>
 
-      <div className="mt-6">
         <button
-          onClick={() => setIsAddSectionModalOpen(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+          className="text-black hover:border hover:border-black text-sm flex items-center rounded-[10px] px-4 py-2 transition-all"
+          onClick={() => setSelectedCategory({ id: section.id, title: section.title })}
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
-            className="h-5 w-5 mr-2"
+            className="h-4 w-4 mr-1"
             viewBox="0 0 20 20"
             fill="currentColor"
           >
@@ -315,9 +314,13 @@ export default function ServicesPage() {
               clipRule="evenodd"
             />
           </svg>
-          Ajouter une section de service
+          Ajouter un service
         </button>
       </div>
+    ))
+  )}
+</div>
+
 
       {/* Modals */}
       <AddStaffModal

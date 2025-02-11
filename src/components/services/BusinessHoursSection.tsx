@@ -61,63 +61,66 @@ export default function BusinessHoursSection() {
   };
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-bold">Horaires d'ouverture</h2>
-        <button
-          onClick={handleSave}
-          disabled={isSaving}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-blue-300"
-        >
-          {isSaving ? 'Sauvegarde...' : 'Sauvegarder'}
-        </button>
-      </div>
-
-      <div className="bg-white rounded-lg shadow p-4">
-        {orderedDays.map(({ key, label }) => (
-          <div 
-            key={key}
-            className="flex items-center space-x-4 py-3 border-b last:border-0"
+      <div>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold text-black">Horaires d'ouverture</h2>
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="border border-black text-black px-4 py-2 rounded-[10px] hover:bg-gray-50 transition-colors disabled:opacity-50"
           >
-            <div className="w-32">
-              <span className="font-medium">{label}</span>
-            </div>
-            <div className="flex-1 flex items-center space-x-4">
-              <label className="flex items-center">
+            {isSaving ? 'Sauvegarde...' : 'Sauvegarder'}
+          </button>
+        </div>
+    
+        <div className="bg-white border border-black rounded-[10px] p-4">
+          {orderedDays.map(({ key, label }) => (
+            <div 
+              key={key}
+              className="flex items-center space-x-4 py-3 border-b last:border-0"
+            >
+              <div className="w-32">
+                <span className="font-medium text-black">{label}</span>
+              </div>
+              <div className="flex-1 flex items-center space-x-4">
+                <label className="flex items-center">
                 <input
-                  type="checkbox"
-                  checked={hours[key as keyof BusinessHours['hours']].isOpen}
-                  onChange={(e) => handleHourChange(key as keyof BusinessHours['hours'], 'isOpen', e.target.checked)}
-                  className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mr-2"
-                />
-                <span>Ouvert</span>
-              </label>
+  type="checkbox"
+  checked={hours[key as keyof BusinessHours['hours']].isOpen}
+  onChange={(e) => handleHourChange(key as keyof BusinessHours['hours'], 'isOpen', e.target.checked)}
+  className="rounded-[10px] border-black text-black outline-none focus:outline-none focus:ring-0 mr-2"
+/>
 
-              {hours[key as keyof BusinessHours['hours']].isOpen && (
-                <>
-                  <input
-                    type="time"
-                    value={hours[key as keyof BusinessHours['hours']].openTime}
-                    onChange={(e) => handleHourChange(key as keyof BusinessHours['hours'], 'openTime', e.target.value)}
-                    className="border rounded-md p-1"
-                  />
-                  <span>-</span>
-                  <input
-                    type="time"
-                    value={hours[key as keyof BusinessHours['hours']].closeTime}
-                    onChange={(e) => handleHourChange(key as keyof BusinessHours['hours'], 'closeTime', e.target.value)}
-                    className="border rounded-md p-1"
-                  />
-                </>
-              )}
-              
-              {!hours[key as keyof BusinessHours['hours']].isOpen && (
-                <span className="text-gray-500 italic">Fermé</span>
-              )}
+
+                  <span className="text-black">Ouvert</span>
+                </label>
+    
+                {hours[key as keyof BusinessHours['hours']].isOpen && (
+                  <>
+                    <input
+  type="time"
+  value={hours[key as keyof BusinessHours['hours']].openTime}
+  onChange={(e) => handleHourChange(key as keyof BusinessHours['hours'], 'openTime', e.target.value)}
+  className="border border-black rounded-[10px] p-1 text-black outline-none focus:outline-none focus:ring-0"
+/>
+
+<span className="text-black">-</span>
+<input
+  type="time"
+  value={hours[key as keyof BusinessHours['hours']].closeTime}
+  onChange={(e) => handleHourChange(key as keyof BusinessHours['hours'], 'closeTime', e.target.value)}
+  className="border border-black rounded-[10px] p-1 text-black outline-none focus:outline-none focus:ring-0"
+/>
+                  </>
+                )}
+                
+                {!hours[key as keyof BusinessHours['hours']].isOpen && (
+                  <span className="text-black italic">Fermé</span>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
 }

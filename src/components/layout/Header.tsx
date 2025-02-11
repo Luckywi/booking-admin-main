@@ -13,21 +13,20 @@ export default function Header() {
     router.push('/login');
   };
   
-
   return (
-    <header className="bg-white shadow">
+    <header className="bg-white border-b border-black">
       <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 justify-between items-center">
           <div className="flex-1 flex items-center">
-          <h1 className="text-xl font-semibold mb-4 text-black">
-     {userData?.role === 'super_admin' ? 'Administration' : userData?.businessName}
-   </h1>
+            <h1 className="text-xl font-semibold text-black">
+              {userData?.role === 'super_admin' ? 'Administration' : userData?.businessName}
+            </h1>
           </div>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-500">{user?.email}</span>
+            <span className="text-sm text-black">{user?.email}</span>
             <button
               onClick={handleSignOut}
-              className="text-sm bg-white hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 border border-black-300 rounded-lg"
+              className="text-sm bg-white hover:bg-gray-50 text-black font-medium py-2 px-4 border border-black rounded-[10px]"
             >
               Déconnexion
             </button>
