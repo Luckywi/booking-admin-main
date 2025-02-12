@@ -120,154 +120,151 @@ export default function EditServiceModal({ isOpen, onClose, onSuccess, service }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">Modifier le service</h2>
-          <button
-            onClick={handleDelete}
-            className="text-red-600 hover:text-red-700 text-sm"
-            disabled={isDeleting || isSubmitting}
-          >
-            {isDeleting ? 'Suppression...' : 'Supprimer'}
-          </button>
-        </div>
+  <div className="bg-white border border-black rounded-[10px] p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+    <div className="flex justify-between items-center border-b border-black pb-4 mb-6">
+      <h2 className="text-2xl font-bold text-black">Modifier le service</h2>
+      <button
+        onClick={handleDelete}
+        className="text-black hover:border hover:border-black rounded-[10px] px-4 py-2 transition-all text-sm"
+        disabled={isDeleting || isSubmitting}
+      >
+        {isDeleting ? 'Suppression...' : 'Supprimer'}
+      </button>
+    </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="border border-black rounded-[10px] p-4">
+        <label className="block text-sm font-bold text-black mb-2">
+          Nom du service
+        </label>
+        <input
+          type="text"
+          value={formData.title}
+          onChange={(e) => setFormData({...formData, title: e.target.value})}
+          className="w-full p-2 border border-black rounded-[10px] text-black placeholder-black focus:outline-none"
+          required
+        />
+      </div>
+
+      <div className="border border-black rounded-[10px] p-4">
+        <label className="block text-sm font-bold text-black mb-2">
+          Description
+        </label>
+        <textarea
+          value={formData.description}
+          onChange={(e) => setFormData({...formData, description: e.target.value})}
+          className="w-full p-2 border border-black rounded-[10px] text-black placeholder-black focus:outline-none"
+          rows={6}
+          required
+        />
+      </div>
+
+      <div className="border border-black rounded-[10px] p-4">
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nom du service
+            <label className="block text-sm font-bold text-black mb-2">
+              Durée
             </label>
-            <input
-              type="text"
-              value={formData.title}
-              onChange={(e) => setFormData({...formData, title: e.target.value})}
-              className="w-full p-2 border rounded-md"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Description
-            </label>
-            <textarea
-              value={formData.description}
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
-              className="w-full p-2 border rounded-md"
-              rows={3}
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Durée
-              </label>
-              <div className="flex gap-2">
-                <div>
-                  <input
-                    type="number"
-                    min="0"
-                    max="23"
-                    value={formData.hours}
-                    onChange={(e) => setFormData({...formData, hours: parseInt(e.target.value)})}
-                    className="w-full p-2 border rounded-md"
-                    placeholder="Heures"
-                  />
-                </div>
-                <div>
-                  <input
-                    type="number"
-                    min="0"
-                    max="59"
-                    value={formData.minutes}
-                    onChange={(e) => setFormData({...formData, minutes: parseInt(e.target.value)})}
-                    className="w-full p-2 border rounded-md"
-                    placeholder="Minutes"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Prix (€)
-              </label>
+            <div className="flex gap-2">
               <input
                 type="number"
                 min="0"
-                step="0.01"
-                value={formData.price}
-                onChange={(e) => setFormData({...formData, price: parseFloat(e.target.value)})}
-                className="w-full p-2 border rounded-md"
-                required
+                max="23"
+                value={formData.hours}
+                onChange={(e) => setFormData({...formData, hours: parseInt(e.target.value)})}
+                className="w-full p-2 border border-black rounded-[10px] text-black placeholder-black focus:outline-none"
+                placeholder="Heures"
+              />
+              <input
+                type="number"
+                min="0"
+                max="59"
+                value={formData.minutes}
+                onChange={(e) => setFormData({...formData, minutes: parseInt(e.target.value)})}
+                className="w-full p-2 border border-black rounded-[10px] text-black placeholder-black focus:outline-none"
+                placeholder="Minutes"
               />
             </div>
           </div>
 
-          {/* Section des collaborateurs */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Collaborateurs autorisés
+            <label className="block text-sm font-bold text-black mb-2">
+              Prix (€)
             </label>
-            <div className="space-y-2">
-              <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  checked={formData.allowAllStaff}
-                  onChange={(e) => {
-                    setFormData(prev => ({
-                      ...prev,
-                      allowAllStaff: e.target.checked,
-                      selectedStaffIds: []
-                    }));
-                  }}
-                  className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mr-2"
-                />
-                <span>Tous les collaborateurs</span>
-              </label>
-
-              {!formData.allowAllStaff && (
-                <div className="grid grid-cols-2 gap-2 mt-2">
-                  {staff.map((member) => (
-                    <label 
-                      key={member.id}
-                      className="flex items-center p-2 bg-gray-50 rounded-md"
-                    >
-                      <input
-                        type="checkbox"
-                        checked={formData.selectedStaffIds.includes(member.id)}
-                        onChange={() => handleStaffSelection(member.id)}
-                        className="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 mr-2"
-                      />
-                      <span>{member.firstName} {member.lastName}</span>
-                    </label>
-                  ))}
-                </div>
-              )}
-            </div>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={formData.price}
+              onChange={(e) => setFormData({...formData, price: parseFloat(e.target.value)})}
+              className="w-full p-2 border border-black rounded-[10px] text-black placeholder-black focus:outline-none"
+              required
+            />
           </div>
-
-          <div className="flex justify-end space-x-2 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
-              disabled={isSubmitting || isDeleting}
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300"
-              disabled={isSubmitting || isDeleting || (!formData.allowAllStaff && formData.selectedStaffIds.length === 0)}
-            >
-              {isSubmitting ? 'Modification...' : 'Modifier'}
-            </button>
-          </div>
-        </form>
+        </div>
       </div>
-    </div>
+
+      <div className="border border-black rounded-[10px] p-4">
+        <label className="block text-sm font-bold text-black mb-4">
+          Collaborateurs autorisés
+        </label>
+        <div className="space-y-4">
+          <label className="flex items-center p-2 border border-black rounded-[10px] hover:bg-gray-50 transition-all">
+            <input
+              type="checkbox"
+              checked={formData.allowAllStaff}
+              onChange={(e) => {
+                setFormData(prev => ({
+                  ...prev,
+                  allowAllStaff: e.target.checked,
+                  selectedStaffIds: []
+                }));
+              }}
+              className="rounded-[10px] border-black text-black focus:ring-0 mr-2"
+            />
+            <span className="text-black">Tous les collaborateurs</span>
+          </label>
+
+          {!formData.allowAllStaff && (
+            <div className="grid grid-cols-2 gap-2">
+              {staff.map((member) => (
+                <label 
+                  key={member.id}
+                  className="flex items-center p-2 border border-black rounded-[10px] hover:bg-gray-50 transition-all"
+                >
+                  <input
+                    type="checkbox"
+                    checked={formData.selectedStaffIds.includes(member.id)}
+                    onChange={() => handleStaffSelection(member.id)}
+                    className="rounded-[10px] border-black text-black focus:ring-0 mr-2"
+                  />
+                  <span className="text-black">{member.firstName} {member.lastName}</span>
+                </label>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="flex justify-end gap-4 pt-4">
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-4 py-2 border border-black text-black rounded-[10px] hover:bg-gray-50 transition-colors"
+          disabled={isSubmitting || isDeleting}
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          className="px-4 py-2 border border-black text-black rounded-[10px] hover:bg-gray-50 transition-colors disabled:opacity-50"
+          disabled={isSubmitting || isDeleting || (!formData.allowAllStaff && formData.selectedStaffIds.length === 0)}
+        >
+          {isSubmitting ? 'Modification...' : 'Modifier'}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
   );
 }

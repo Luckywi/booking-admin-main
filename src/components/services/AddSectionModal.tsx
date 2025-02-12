@@ -46,44 +46,46 @@ export default function AddSectionModal({ isOpen, onClose, onSuccess }: AddSecti
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <h2 className="text-xl font-bold mb-4">Nouvelle section de services</h2>
-        
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-1">
-              Titre de la section
-            </label>
-            <input
-              type="text"
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
-              placeholder="Ex: Coiffure classique"
-              required
-            />
-          </div>
-
-          <div className="flex justify-end space-x-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-md"
-              disabled={isSubmitting}
-            >
-              Annuler
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-blue-300"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? 'Création...' : 'Créer la section'}
-            </button>
-          </div>
-        </form>
+  <div className="bg-white border border-black rounded-[10px] p-6 w-full max-w-md">
+    <h2 className="text-2xl font-bold text-black border-b border-black pb-4 mb-6">
+      Nouvelle section de services
+    </h2>
+    
+    <form onSubmit={handleSubmit}>
+      <div className="border border-black rounded-[10px] p-4 mb-6">
+        <label htmlFor="title" className="block text-sm font-bold text-black mb-2">
+          Titre de la section
+        </label>
+        <input
+          type="text"
+          id="title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          className="w-full p-2 border border-black rounded-[10px] text-black placeholder-black focus:outline-none"
+          placeholder="Ex: Coiffure classique"
+          required
+        />
       </div>
-    </div>
+
+      <div className="flex justify-end gap-4">
+        <button
+          type="button"
+          onClick={onClose}
+          className="px-4 py-2 border border-black text-black rounded-[10px] hover:bg-gray-50 transition-colors"
+          disabled={isSubmitting}
+        >
+          Annuler
+        </button>
+        <button
+          type="submit"
+          className="px-4 py-2 border border-black text-black rounded-[10px] hover:bg-gray-50 transition-colors disabled:opacity-50"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Création...' : 'Créer la section'}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
   );
 }

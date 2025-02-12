@@ -148,23 +148,39 @@ export default function AppointmentsPage() {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
     const dayName = days[start.getDay()];
     const timeString = format(start, 'HH:mm');
-
+  
     if (businessHours) {
       const businessDay = businessHours[dayName as keyof BusinessHours['hours']];
       if (!businessDay.isOpen) return false;
       const businessOpen = businessDay.openTime || '00:00';
       const businessClose = businessDay.closeTime || '23:59';
       if (timeString < businessOpen || timeString > businessClose) return false;
+  
+      // Vérification des pauses du business
+      if (businessDay.breakPeriods?.length) {
+        const isInBusinessBreak = businessDay.breakPeriods.some(
+          period => timeString >= period.start && timeString <= period.end
+        );
+        if (isInBusinessBreak) return false;
+      }
     }
-
+  
     if (selectedStaffId && staffHours) {
       const staffDay = staffHours[dayName as keyof BusinessHours['hours']];
       if (!staffDay.isOpen) return false;
       const staffOpen = staffDay.openTime || '00:00';
       const staffClose = staffDay.closeTime || '23:59';
       if (timeString < staffOpen || timeString > staffClose) return false;
+  
+      // Vérification des pauses du staff
+      if (staffDay.breakPeriods?.length) {
+        const isInStaffBreak = staffDay.breakPeriods.some(
+          period => timeString >= period.start && timeString <= period.end
+        );
+        if (isInStaffBreak) return false;
+      }
     }
-
+  
     return true;
   };
 

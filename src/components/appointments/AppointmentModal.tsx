@@ -3,7 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { collection, query, where, getDocs, addDoc, getDoc, doc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
-import { format, setHours, setMinutes, addDays, startOfDay, endOfDay, eachDayOfInterval } from 'date-fns';
+import { format, setHours, setMinutes, addDays, startOfDay, endOfDay, eachDayOfInterval} from 'date-fns';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useBusinessHours } from '@/contexts/BusinessHoursContext';
 import { useAppointmentForm } from '@/hooks/useAppointmentForm';
@@ -218,31 +218,64 @@ export default function AppointmentModal({ isOpen, onClose, onSuccess }: Appoint
       const closeTime = staffDay.closeTime < businessDay.closeTime ? staffDay.closeTime : businessDay.closeTime;
 
       // 7. Générer les créneaux de 30 minutes
-      const slots: string[] = [];
-      let currentTime = openTime;
-      const serviceDuration = (service.duration.hours * 60) + service.duration.minutes;
+const slots: string[] = [];
+let currentTime = openTime;
+const serviceDuration = (service.duration.hours * 60) + service.duration.minutes;
 
-      while (currentTime < closeTime) {
-        const [hours, minutes] = currentTime.split(':').map(Number);
-        const slotStart = new Date(date);
-        slotStart.setHours(hours, minutes, 0, 0);
+while (currentTime < closeTime) {
+  const [hours, minutes] = currentTime.split(':').map(Number);
+  const slotStart = new Date(date);
+  slotStart.setHours(hours, minutes, 0, 0);
 
-        if (slotStart > new Date()) {
-          const slotEnd = new Date(slotStart);
-          slotEnd.setMinutes(slotStart.getMinutes() + serviceDuration);
+  if (slotStart > new Date()) {
+    const slotEnd = new Date(slotStart);
+    slotEnd.setMinutes(slotStart.getMinutes() + serviceDuration);
 
-          const endTimeStr = format(slotEnd, 'HH:mm');
-          if (endTimeStr <= closeTime) {
-            slots.push(currentTime);
-          }
-        }
+    const endTimeStr = format(slotEnd, 'HH:mm');
+    if (endTimeStr <= closeTime) {
+      // Nouvelle vérification des pauses
+      const slotStartTime = format(slotStart, 'HH:mm');
+      const slotEndTime = format(slotEnd, 'HH:mm');
 
-        const totalMinutes = (hours * 60 + minutes + 30);
-        currentTime = format(
-          setHours(setMinutes(new Date(), totalMinutes % 60), Math.floor(totalMinutes / 60)),
-          'HH:mm'
-        );
+      // Vérifier les pauses du business
+const isInBusinessBreak = businessDay.breakPeriods?.some(period => {
+  const breakStart = period.start;
+  const breakEnd = period.end;
+  return (
+    // Le début du créneau est pendant la pause
+    (slotStartTime >= breakStart && slotStartTime < breakEnd) ||
+    // La fin du créneau est pendant la pause
+    (slotEndTime > breakStart && slotEndTime <= breakEnd) ||
+    // Le créneau englobe toute la pause
+    (slotStartTime <= breakStart && slotEndTime >= breakEnd)
+  );
+}) || false;
+
+// Vérifier les pauses du staff
+const isInStaffBreak = staffDay.breakPeriods?.some(period => {
+  const breakStart = period.start;
+  const breakEnd = period.end;
+  return (
+    (slotStartTime >= breakStart && slotStartTime < breakEnd) ||
+    (slotEndTime > breakStart && slotEndTime <= breakEnd) ||
+    (slotStartTime <= breakStart && slotEndTime >= breakEnd)
+  );
+}) || false;
+
+
+      // Ajouter le créneau seulement s'il ne chevauche pas de pause
+      if (!isInBusinessBreak && !isInStaffBreak) {
+        slots.push(currentTime);
       }
+    }
+  }
+
+  const totalMinutes = (hours * 60 + minutes + 30);
+  currentTime = format(
+    setHours(setMinutes(new Date(), totalMinutes % 60), Math.floor(totalMinutes / 60)),
+    'HH:mm'
+  );
+}
 
       // 8. Récupérer et filtrer les rendez-vous existants
       try {

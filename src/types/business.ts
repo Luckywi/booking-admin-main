@@ -4,8 +4,16 @@ export interface OpeningHours {
     isOpen: boolean;
     openTime?: string;
     closeTime?: string;
+    breakPeriods?: BreakPeriod[];
   }
   
+  export interface BreakPeriod {
+    start: string;    // Format "HH:mm"
+    end: string;      // Format "HH:mm"
+    label?: string;   // Ex: "Pause déjeuner"
+}
+
+
   export interface BusinessHours {
     id: string;
     businessId: string;
