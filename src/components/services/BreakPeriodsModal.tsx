@@ -62,11 +62,11 @@ export default function BreakPeriodsModal({
                   value={period.label}
                   onChange={(e) => updatePeriod(index, 'label', e.target.value)}
                   placeholder="Label (ex: Pause déjeuner)"
-                  className="w-full p-2 border border-black rounded-[10px] text-black"
+                  className="w-full p-2 border border-black rounded-[10px] text-black outline-none focus:outline-none focus:ring-0"
                 />
                 <button
                   onClick={() => removePeriod(index)}
-                  className="ml-2 p-2 text-black hover:bg-gray-50 rounded-[10px]"
+                  className="ml-2 p-2 text-black hover:text-red-600"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -76,14 +76,14 @@ export default function BreakPeriodsModal({
                   type="time"
                   value={period.start}
                   onChange={(e) => updatePeriod(index, 'start', e.target.value)}
-                  className="flex-1 p-2 border border-black rounded-[10px]"
+                  className="flex-1 p-2 border border-black rounded-[10px] text-black outline-none focus:outline-none focus:ring-0"
                 />
                 <span className="text-black self-center">-</span>
                 <input
                   type="time"
                   value={period.end}
                   onChange={(e) => updatePeriod(index, 'end', e.target.value)}
-                  className="flex-1 p-2 border border-black rounded-[10px]"
+                  className="flex-1 p-2 border border-black rounded-[10px] text-black outline-none focus:outline-none focus:ring-0"
                 />
               </div>
             </div>

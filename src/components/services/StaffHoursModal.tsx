@@ -198,18 +198,20 @@ export default function StaffHoursModal({ isOpen, onClose, staffId, businessId }
                        className="border border-black rounded-[10px] p-2 text-black outline-none focus:outline-none"
                      />
 
-                     <button
-                       onClick={() => setSelectedDay(key as keyof BusinessHours['hours'])}
-                       className="px-3 py-1 border border-black text-black rounded-[10px] hover:bg-gray-50 transition-all text-sm"
-                     >
-                       Gérer les pauses
-                     </button>
+<div className="relative inline-flex">
+                  <button
+                    onClick={() => setSelectedDay(key as keyof BusinessHours['hours'])}
+                    className="px-3 py-1 border border-black text-black rounded-[10px] hover:bg-gray-50 transition-all text-sm"
+                  >
+                    Gérer les pauses
+                  </button>
+                  {hours[key as keyof BusinessHours['hours']].breakPeriods?.length > 0 && (
+                    <span className="absolute -top-2 -right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-black bg-white border border-black rounded-full">
+                      {hours[key as keyof BusinessHours['hours']].breakPeriods.length}
+                    </span>
+                  )}
+                </div>
 
-                     {dayHours.breakPeriods?.length > 0 && (
-                       <span className="text-sm text-black">
-                         ({dayHours.breakPeriods.length} pause{dayHours.breakPeriods.length > 1 ? 's' : ''})
-                       </span>
-                     )}
                    </>
                  )}
                  

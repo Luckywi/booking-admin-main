@@ -1,7 +1,7 @@
 // src/components/services/BusinessHoursSection.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useBusinessHours } from '@/contexts/BusinessHoursContext';
 import type { BusinessHours, OpeningHours, BreakPeriod } from '@/types/business';
 import BreakPeriodsModal from '@/components/services/BreakPeriodsModal';
@@ -31,6 +31,12 @@ export default function BusinessHoursSection() {
   const [hours, setHours] = useState<BusinessHours['hours']>(businessHours || defaultHours);
   const [isSaving, setIsSaving] = useState(false);
   const [selectedDay, setSelectedDay] = useState<keyof BusinessHours['hours'] | null>(null);
+
+  useEffect(() => {
+    if (businessHours) {
+      setHours(businessHours);
+    }
+  }, [businessHours]);
 
   const handleSave = async () => {
     try {
@@ -117,31 +123,26 @@ export default function BusinessHoursSection() {
                     className="border border-black rounded-[10px] p-1 text-black outline-none focus:outline-none focus:ring-0"
                   />
                   
-                  <button
-                    onClick={() => setSelectedDay(key as keyof BusinessHours['hours'])}
-                    className="px-3 py-1 border border-black text-black rounded-[10px] hover:bg-gray-50 transition-all text-sm"
-                  >
-                    Gérer les pauses
-                  </button>
-
-                  {hours[key as keyof BusinessHours['hours']].breakPeriods?.length ? (
-                    <span className="text-sm text-black">
-                      {hours[key as keyof BusinessHours['hours']].breakPeriods && 
-  hours[key as keyof BusinessHours['hours']].breakPeriods!.length > 0 && (
-    <span className="text-sm text-black">
-      ({hours[key as keyof BusinessHours['hours']].breakPeriods!.length} pause
-      {hours[key as keyof BusinessHours['hours']].breakPeriods!.length > 1 ? 's' : ''})
-    </span>
-)}
-                  </span>
-                  ) : null}
+                  <div className="relative inline-flex">
+                    <button
+                      onClick={() => setSelectedDay(key as keyof BusinessHours['hours'])}
+                      className="px-3 py-1 border border-black text-black rounded-[10px] hover:bg-gray-50 transition-all text-sm"
+                    >
+                      Gérer les pauses
+                    </button>
+                    {hours[key as keyof BusinessHours['hours']].breakPeriods?.length > 0 && (
+                      <span className="absolute -top-2 -right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-black bg-white border border-black rounded-full">
+                        {hours[key as keyof BusinessHours['hours']].breakPeriods.length}
+                      </span>
+                    )}
+                  </div>
                 </>
               )}
             </div>
           </div>
         ))}
       </div>
-
+  
       {selectedDay && (
         <BreakPeriodsModal
           isOpen={true}

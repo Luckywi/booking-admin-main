@@ -119,25 +119,27 @@ export default function AppointmentsPage() {
     }
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      const appointmentsData = snapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          businessId: data.businessId,
-          staffId: data.staffId,
-          title: `${format(data.start.toDate(), 'HH:mm')} - ${format(data.end.toDate(), 'HH:mm')}`,
-          clientName: data.clientName,
-          clientEmail: data.clientEmail,
-          clientPhone: data.clientPhone,
-          start: data.start.toDate(),
-          end: data.end.toDate(),
-          status: data.status,
-          notes: data.notes || '',
-          serviceId: data.serviceId || '',
-          createdAt: data.createdAt?.toDate() || new Date()
-        } as Appointment;
-      });
-
+      const appointmentsData = snapshot.docs
+        .map(doc => {
+          const data = doc.data();
+          return {
+            id: doc.id,
+            businessId: data.businessId,
+            staffId: data.staffId,
+            title: `${format(data.start.toDate(), 'HH:mm')} - ${format(data.end.toDate(), 'HH:mm')}`,
+            clientName: data.clientName,
+            clientEmail: data.clientEmail,
+            clientPhone: data.clientPhone,
+            start: data.start.toDate(),
+            end: data.end.toDate(),
+            status: data.status,
+            notes: data.notes || '',
+            serviceId: data.serviceId || '',
+            createdAt: data.createdAt?.toDate() || new Date()
+          } as Appointment;
+        })
+        .filter(appointment => appointment.status !== 'cancelled'); // Filtre les rendez-vous annulés
+    
       setAppointments(appointmentsData);
     });
 

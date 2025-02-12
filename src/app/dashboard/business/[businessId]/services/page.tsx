@@ -250,7 +250,7 @@ export default function ServicesPage() {
         className="bg-white border border-black p-6 rounded-[10px]"
       >
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold text-black">{section.title}</h2>
+        <h2 className="text-xl font-medium text-black">{section.title}</h2>
           <button
             onClick={() => setEditingSection(section)}
             className="text-black hover:border hover:border-black text-sm flex items-center rounded-[10px] px-4 py-2 transition-all"
