@@ -13,6 +13,17 @@ export interface OpeningHours {
     label?: string;   // Ex: "Pause déjeuner"
 }
 
+export interface VacationPeriod {
+  id: string;
+  startDate: Date;
+  endDate: Date;
+  title: string;
+  description?: string;
+  type: 'business' | 'staff';
+  entityId: string; // businessId ou staffId selon le type
+  createdAt: Date;
+}
+
 
   export interface BusinessHours {
     id: string;
@@ -26,6 +37,8 @@ export interface OpeningHours {
       saturday: OpeningHours;
       sunday: OpeningHours;
     };
+    vacationPeriods: VacationPeriod[];
+
   }
 
   // Ajouter cette interface pour les horaires des collaborateurs

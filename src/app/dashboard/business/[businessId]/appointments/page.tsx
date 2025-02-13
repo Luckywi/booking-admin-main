@@ -11,7 +11,7 @@ import StaffSelector from '@/components/appointments/StaffSelector';
 import { db } from '@/lib/firebase/config';
 import { useAuth } from '@/components/auth/AuthProvider';
 import type { Appointment } from '@/types/appointment';
-import type { BusinessHours } from '@/types/business';
+import type { BusinessHours, VacationPeriod } from '@/types/business';
 import type { Staff } from '@/types/staff';
 import { collection, query, where, onSnapshot, doc, getDoc, getDocs } from 'firebase/firestore';
 import AppointmentDetailsModal from '@/components/appointments/AppointmentDetailsModal';

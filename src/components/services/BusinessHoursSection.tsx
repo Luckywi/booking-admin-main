@@ -1,10 +1,10 @@
-// src/components/services/BusinessHoursSection.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
 import { useBusinessHours } from '@/contexts/BusinessHoursContext';
 import type { BusinessHours, OpeningHours, BreakPeriod } from '@/types/business';
 import BreakPeriodsModal from '@/components/services/BreakPeriodsModal';
+import VacationModal from '@/components/services/VacationModal';
 
 const orderedDays = [
   { key: 'monday', label: 'Lundi' },
@@ -16,21 +16,22 @@ const orderedDays = [
   { key: 'sunday', label: 'Dimanche' }
 ] as const;
 
-const defaultHours: BusinessHours['hours'] = {
+const defaultHours = {
   monday: { day: 'Lundi', isOpen: true, openTime: '09:00', closeTime: '19:00', breakPeriods: [] },
   tuesday: { day: 'Mardi', isOpen: true, openTime: '09:00', closeTime: '19:00', breakPeriods: [] },
   wednesday: { day: 'Mercredi', isOpen: true, openTime: '09:00', closeTime: '19:00', breakPeriods: [] },
   thursday: { day: 'Jeudi', isOpen: true, openTime: '09:00', closeTime: '19:00', breakPeriods: [] },
   friday: { day: 'Vendredi', isOpen: true, openTime: '09:00', closeTime: '19:00', breakPeriods: [] },
   saturday: { day: 'Samedi', isOpen: false, breakPeriods: [] },
-  sunday: { day: 'Dimanche', isOpen: false, breakPeriods: [] }
+  sunday: { day: 'Dimanche', isOpen: false, breakPeriods: [] },
 };
 
-export default function BusinessHoursSection() {
+export default function BusinessHoursSection({ businessId }: { businessId: string }) {
   const { businessHours, updateBusinessHours } = useBusinessHours();
   const [hours, setHours] = useState<BusinessHours['hours']>(businessHours || defaultHours);
   const [isSaving, setIsSaving] = useState(false);
   const [selectedDay, setSelectedDay] = useState<keyof BusinessHours['hours'] | null>(null);
+  const [showVacationModal, setShowVacationModal] = useState(false);
 
   useEffect(() => {
     if (businessHours) {
@@ -49,20 +50,6 @@ export default function BusinessHoursSection() {
     }
   };
 
-  const handleHourChange = (
-    day: keyof BusinessHours['hours'],
-    field: 'isOpen' | 'openTime' | 'closeTime',
-    value: string | boolean
-  ) => {
-    setHours(prev => ({
-      ...prev,
-      [day]: {
-        ...prev[day],
-        [field]: value
-      }
-    }));
-  };
-
   const handleBreakPeriodsUpdate = (day: keyof BusinessHours['hours'], breaks: BreakPeriod[]) => {
     setHours(prev => ({
       ...prev,
@@ -76,15 +63,23 @@ export default function BusinessHoursSection() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex justify-between items-center mb-6">
         <h2 className="text-xl font-bold text-black">Horaires d'ouverture</h2>
-        <button
-          onClick={handleSave}
-          disabled={isSaving}
-          className="border border-black text-black px-4 py-2 rounded-[10px] hover:bg-gray-50 transition-colors disabled:opacity-50"
-        >
-          {isSaving ? 'Sauvegarde...' : 'Sauvegarder'}
-        </button>
+        <div className="flex gap-4">
+          <button
+            onClick={() => setShowVacationModal(true)}
+            className="px-4 py-2 border border-black text-black rounded-[10px] hover:bg-gray-50 transition-colors"
+          >
+            Gérer les vacances
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="px-4 py-2 border border-black text-black rounded-[10px] hover:bg-gray-50 transition-colors disabled:opacity-50"
+          >
+            {isSaving ? 'Sauvegarde...' : 'Sauvegarder'}
+          </button>
+        </div>
       </div>
     
       <div className="bg-white border border-black rounded-[10px] p-4">
@@ -101,7 +96,15 @@ export default function BusinessHoursSection() {
                 <input
                   type="checkbox"
                   checked={hours[key as keyof BusinessHours['hours']].isOpen}
-                  onChange={(e) => handleHourChange(key as keyof BusinessHours['hours'], 'isOpen', e.target.checked)}
+                  onChange={(e) => {
+                    setHours((prev: any) => ({
+                      ...prev,
+                      [key]: {
+                        ...prev[key],
+                        isOpen: e.target.checked
+                      }
+                    }));
+                  }}
                   className="rounded-[10px] border-black text-black outline-none focus:outline-none focus:ring-0 mr-2"
                 />
                 <span className="text-black">Ouvert</span>
@@ -112,14 +115,30 @@ export default function BusinessHoursSection() {
                   <input
                     type="time"
                     value={hours[key as keyof BusinessHours['hours']].openTime}
-                    onChange={(e) => handleHourChange(key as keyof BusinessHours['hours'], 'openTime', e.target.value)}
+                    onChange={(e) => {
+                      setHours((prev: any) => ({
+                        ...prev,
+                        [key]: {
+                          ...prev[key],
+                          openTime: e.target.value
+                        }
+                      }));
+                    }}
                     className="border border-black rounded-[10px] p-1 text-black outline-none focus:outline-none focus:ring-0"
                   />
                   <span className="text-black">-</span>
                   <input
                     type="time"
                     value={hours[key as keyof BusinessHours['hours']].closeTime}
-                    onChange={(e) => handleHourChange(key as keyof BusinessHours['hours'], 'closeTime', e.target.value)}
+                    onChange={(e) => {
+                      setHours((prev: any) => ({
+                        ...prev,
+                        [key]: {
+                          ...prev[key],
+                          closeTime: e.target.value
+                        }
+                      }));
+                    }}
                     className="border border-black rounded-[10px] p-1 text-black outline-none focus:outline-none focus:ring-0"
                   />
                   
@@ -142,7 +161,7 @@ export default function BusinessHoursSection() {
           </div>
         ))}
       </div>
-  
+
       {selectedDay && (
         <BreakPeriodsModal
           isOpen={true}
@@ -152,6 +171,14 @@ export default function BusinessHoursSection() {
           onSave={(breaks) => handleBreakPeriodsUpdate(selectedDay, breaks)}
         />
       )}
+
+      <VacationModal
+        isOpen={showVacationModal}
+        onClose={() => setShowVacationModal(false)}
+        type="business"
+        entityId={businessId}
+        entityName="Business"
+      />
     </div>
   );
 }

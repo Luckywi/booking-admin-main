@@ -12,6 +12,7 @@ import type { Service, ServiceCategory } from '@/types/service';
 import type { BusinessHours } from '@/types/business';
 import DatePicker from '@/components/appointments/DatePicker'; // Assurez-vous que le chemin est correct
 import { fr } from 'date-fns/locale';
+import { VacationPeriod } from '@/types/business';
 
 interface AppointmentModalProps {
   isOpen: boolean;
@@ -43,6 +44,8 @@ export default function AppointmentModal({ isOpen, onClose, onSuccess }: Appoint
   const [staffHours, setStaffHours] = useState<BusinessHours['hours'] | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [businessVacations, setBusinessVacations] = useState<VacationPeriod[]>([]);
+  const [staffVacations, setStaffVacations] = useState<VacationPeriod[]>([]);
 
 
   // Générer les dates du mois courant
@@ -76,6 +79,63 @@ export default function AppointmentModal({ isOpen, onClose, onSuccess }: Appoint
 
     fetchStaff();
   }, [userData?.businessId, isOpen]);
+
+  // Ajoutez cet effet pour charger les vacances du business
+useEffect(() => {
+  const fetchBusinessVacations = async () => {
+    if (!userData?.businessId) return;
+
+    try {
+      const q = query(
+        collection(db, 'vacationPeriods'),
+        where('entityId', '==', userData.businessId),
+        where('type', '==', 'business')
+      );
+      const snapshot = await getDocs(q);
+      const vacations = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        startDate: doc.data().startDate.toDate(),
+        endDate: doc.data().endDate.toDate()
+      })) as VacationPeriod[];
+      setBusinessVacations(vacations);
+    } catch (error) {
+      console.error('Erreur lors du chargement des vacances business:', error);
+    }
+  };
+
+  if (isOpen) {
+    fetchBusinessVacations();
+  }
+}, [userData?.businessId, isOpen]);
+
+// Ajoutez cet effet pour charger les vacances du staff sélectionné
+useEffect(() => {
+  const fetchStaffVacations = async () => {
+    if (!selectedStaff) return;
+
+    try {
+      const q = query(
+        collection(db, 'vacationPeriods'),
+        where('entityId', '==', selectedStaff.id),
+        where('type', '==', 'staff')
+      );
+      const snapshot = await getDocs(q);
+      const vacations = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        startDate: doc.data().startDate.toDate(),
+        endDate: doc.data().endDate.toDate()
+      })) as VacationPeriod[];
+      setStaffVacations(vacations);
+    } catch (error) {
+      console.error('Erreur lors du chargement des vacances staff:', error);
+    }
+  };
+
+  fetchStaffVacations();
+}, [selectedStaff]);
+
 
   useEffect(() => {
     const fetchServices = async () => {
@@ -141,26 +201,41 @@ export default function AppointmentModal({ isOpen, onClose, onSuccess }: Appoint
 
   const isDateAvailable = (date: Date): boolean => {
     if (!date || !businessHours || !selectedStaff) return false;
-
+  
+    // Vérifier si la date est dans une période de vacances business
+    const isInBusinessVacation = businessVacations.some(vacation => {
+      const checkDate = startOfDay(date);
+      return checkDate >= startOfDay(vacation.startDate) && checkDate <= startOfDay(vacation.endDate);
+    });
+  
+    if (isInBusinessVacation) return false;
+  
+    // Vérifier si la date est dans une période de vacances staff
+    const isInStaffVacation = staffVacations.some(vacation => {
+      const checkDate = startOfDay(date);
+      return checkDate >= startOfDay(vacation.startDate) && checkDate <= startOfDay(vacation.endDate);
+    });
+  
+    if (isInStaffVacation) return false;
+  
     const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-    // Ajuster l'index pour commencer par lundi (1 = lundi, ..., 0 = dimanche)
     const dayIndex = date.getDay() === 0 ? 6 : date.getDay() - 1;
     const dayName = days[dayIndex] as keyof BusinessHours['hours'];
-
+  
     const businessDay = businessHours[dayName];
     if (!businessDay?.isOpen) return false;
-
+  
     if (staffHours) {
       const staffDay = staffHours[dayName];
       if (!staffDay?.isOpen) return false;
     }
-
+  
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const checkDate = new Date(date);
     checkDate.setHours(0, 0, 0, 0);
     if (checkDate < today) return false;
-
+  
     return true;
   };
 
@@ -172,6 +247,12 @@ export default function AppointmentModal({ isOpen, onClose, onSuccess }: Appoint
         return;
       }
 
+      const dateToCheck = new Date(date);
+if (!isDateAvailable(dateToCheck)) {
+  console.log('Date non disponible (vacances)');
+  setAvailableSlots([]);
+  return;
+}
       // 1. Récupérer les horaires du business
       const businessHoursDoc = await getDoc(doc(db, 'businessHours', userData.businessId));
       if (!businessHoursDoc.exists()) {
