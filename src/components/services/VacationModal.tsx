@@ -1,20 +1,19 @@
-// src/components/services/VacationModal.tsx
-'use client';
-
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { doc, updateDoc, collection, query, where, getDocs, addDoc, deleteDoc} from 'firebase/firestore';
+import { doc, collection, query, where, getDocs, addDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import type { VacationPeriod } from '@/types/business';
 import { Trash2 } from 'lucide-react';
+import DatePicker from '@/components/appointments/DatePicker';
 
 interface VacationModalProps {
   isOpen: boolean;
   onClose: () => void;
   type: 'business' | 'staff';
-  entityId: string; // businessId ou staffId
-  entityName?: string; // Nom de l'entité (business ou staff)
+  entityId: string;
+  entityName?: string;
+  onVacationsUpdate: (vacations: VacationPeriod[]) => void;
 }
 
 export default function VacationModal({
@@ -22,7 +21,8 @@ export default function VacationModal({
   onClose,
   type,
   entityId,
-  entityName
+  entityName,
+  onVacationsUpdate
 }: VacationModalProps) {
   const [vacations, setVacations] = useState<VacationPeriod[]>([]);
   const [newVacation, setNewVacation] = useState({
@@ -32,6 +32,29 @@ export default function VacationModal({
     description: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+
+  const startDatePickerRef = useRef<HTMLDivElement>(null);
+  const endDatePickerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (startDatePickerRef.current && 
+          !startDatePickerRef.current.contains(event.target as Node)) {
+        setShowStartDatePicker(false);
+      }
+      if (endDatePickerRef.current && 
+          !endDatePickerRef.current.contains(event.target as Node)) {
+        setShowEndDatePicker(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     const fetchVacations = async () => {
@@ -53,6 +76,7 @@ export default function VacationModal({
         })) as VacationPeriod[];
 
         setVacations(vacationData);
+        onVacationsUpdate(vacationData);
       } catch (error) {
         console.error('Erreur lors de la récupération des vacances:', error);
       }
@@ -61,7 +85,7 @@ export default function VacationModal({
     if (isOpen) {
       fetchVacations();
     }
-  }, [entityId, type, isOpen]);
+  }, [entityId, type, isOpen, onVacationsUpdate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -104,6 +128,7 @@ export default function VacationModal({
       })) as VacationPeriod[];
 
       setVacations(updatedVacations);
+      onVacationsUpdate(updatedVacations);
     } catch (error) {
       console.error('Erreur lors de l\'ajout de la période de vacances:', error);
     } finally {
@@ -112,14 +137,20 @@ export default function VacationModal({
   };
 
   const handleDelete = async (vacationId: string) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer cette période de vacances ?')) return;
-
     try {
       await deleteDoc(doc(db, 'vacationPeriods', vacationId));
-      setVacations(prev => prev.filter(v => v.id !== vacationId));
+      const updatedVacations = vacations.filter(v => v.id !== vacationId);
+      setVacations(updatedVacations);
+      onVacationsUpdate(updatedVacations);
     } catch (error) {
       console.error('Erreur lors de la suppression de la période de vacances:', error);
     }
+  };
+
+  const isDateAvailable = (date: Date): boolean => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date >= today;
   };
 
   if (!isOpen) return null;
@@ -143,7 +174,7 @@ export default function VacationModal({
                 type="text"
                 value={newVacation.title}
                 onChange={(e) => setNewVacation(prev => ({ ...prev, title: e.target.value }))}
-                className="w-full p-2 border border-black rounded-[10px] text-black"
+                className="w-full p-2 border border-black rounded-[10px] text-black placeholder-black focus:outline-none"
                 required
               />
             </div>
@@ -155,35 +186,78 @@ export default function VacationModal({
                 type="text"
                 value={newVacation.description}
                 onChange={(e) => setNewVacation(prev => ({ ...prev, description: e.target.value }))}
-                className="w-full p-2 border border-black rounded-[10px] text-black"
+                className="w-full p-2 border border-black rounded-[10px] text-black placeholder-black focus:outline-none"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4 mb-4">
-            <div>
+            <div className="relative">
               <label className="block text-sm font-medium text-black mb-1">
                 Date de début
               </label>
               <input
-                type="date"
-                value={newVacation.startDate}
-                onChange={(e) => setNewVacation(prev => ({ ...prev, startDate: e.target.value }))}
-                className="w-full p-2 border border-black rounded-[10px] text-black"
+                type="text"
+                readOnly
+                value={newVacation.startDate ? format(new Date(newVacation.startDate), 'dd/MM/yyyy', { locale: fr }) : ''}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowStartDatePicker(true);
+                  setShowEndDatePicker(false);
+                }}
+                className="w-full p-2 border border-black rounded-[10px] text-black placeholder-black focus:outline-none cursor-pointer"
+                placeholder="Sélectionner une date"
                 required
               />
+              {showStartDatePicker && (
+                <div ref={startDatePickerRef} className="absolute z-50 mt-1">
+                  <DatePicker
+                    selectedDate={newVacation.startDate}
+                    onDateSelect={(date) => {
+                      setNewVacation(prev => ({
+                        ...prev,
+                        startDate: format(date, 'yyyy-MM-dd')
+                      }));
+                      setShowStartDatePicker(false);
+                    }}
+                    isDateAvailable={isDateAvailable}
+                  />
+                </div>
+              )}
             </div>
-            <div>
+
+            <div className="relative">
               <label className="block text-sm font-medium text-black mb-1">
                 Date de fin
               </label>
               <input
-                type="date"
-                value={newVacation.endDate}
-                onChange={(e) => setNewVacation(prev => ({ ...prev, endDate: e.target.value }))}
-                className="w-full p-2 border border-black rounded-[10px] text-black"
+                type="text"
+                readOnly
+                value={newVacation.endDate ? format(new Date(newVacation.endDate), 'dd/MM/yyyy', { locale: fr }) : ''}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowEndDatePicker(true);
+                  setShowStartDatePicker(false);
+                }}
+                className="w-full p-2 border border-black rounded-[10px] text-black placeholder-black focus:outline-none cursor-pointer"
+                placeholder="Sélectionner une date"
                 required
               />
+              {showEndDatePicker && (
+                <div ref={endDatePickerRef} className="absolute z-50 mt-1">
+                  <DatePicker
+                    selectedDate={newVacation.endDate}
+                    onDateSelect={(date) => {
+                      setNewVacation(prev => ({
+                        ...prev,
+                        endDate: format(date, 'yyyy-MM-dd')
+                      }));
+                      setShowEndDatePicker(false);
+                    }}
+                    isDateAvailable={isDateAvailable}
+                  />
+                </div>
+              )}
             </div>
           </div>
 

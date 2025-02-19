@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { collection, query, where, getDocs, addDoc, getDoc, doc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase/config';
 import StaffColorPicker from '@/components/staff/StaffColorPicker';
-import type { BusinessHours, BreakPeriod } from '@/types/business';
+import type { BusinessHours, BreakPeriod, VacationPeriod } from '@/types/business';
 import BreakPeriodsModal from './BreakPeriodsModal';
 import VacationModal from './VacationModal';
 
@@ -45,6 +45,37 @@ export default function StaffHoursModal({ isOpen, onClose, staffId, businessId }
     color: '#FF5733'
   });
   const [selectedDay, setSelectedDay] = useState<keyof BusinessHours['hours'] | null>(null);
+  const [staffVacations, setStaffVacations] = useState<VacationPeriod[]>([]);
+
+  // Effet pour charger les vacances du staff
+useEffect(() => {
+  const fetchStaffVacations = async () => {
+    if (!staffId) return;
+    
+    try {
+      const q = query(
+        collection(db, 'vacationPeriods'),
+        where('entityId', '==', staffId),
+        where('type', '==', 'staff')
+      );
+      const snapshot = await getDocs(q);
+      const vacations = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        startDate: doc.data().startDate.toDate(),
+        endDate: doc.data().endDate.toDate()
+      })) as VacationPeriod[];
+      setStaffVacations(vacations);
+    } catch (error) {
+      console.error('Erreur lors du chargement des vacances du staff:', error);
+    }
+  };
+
+  if (isOpen && staffId) {
+    fetchStaffVacations();
+  }
+}, [staffId, isOpen]);
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -133,12 +164,21 @@ export default function StaffHoursModal({ isOpen, onClose, staffId, businessId }
         {/* Section Vacances */}
         <div className="mb-6 flex justify-between items-center">
           <h3 className="text-lg font-bold text-black">Périodes de vacances</h3>
-          <button
-            onClick={() => setShowVacationModal(true)}
-            className="px-4 py-2 border border-black text-black rounded-[10px] hover:bg-gray-50 transition-colors"
-          >
-            Gérer les vacances
-          </button>
+          <div className="relative inline-flex">
+            <button
+              onClick={() => setShowVacationModal(true)}
+              className="px-4 py-2 border border-black text-black rounded-[10px] hover:bg-gray-50 transition-colors"
+            >
+              Gérer les vacances
+            </button>
+            {staffVacations?.length > 0 && (
+              <span className="absolute -top-2 -right-2 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-black bg-white border border-black rounded-full">
+                {staffVacations.length}
+              </span>
+            )}
+          </div>
+
+
         </div>
 
         {/* Section Horaires */}
@@ -258,12 +298,14 @@ export default function StaffHoursModal({ isOpen, onClose, staffId, businessId }
 
         {/* Modal de gestion des vacances */}
         <VacationModal
-          isOpen={showVacationModal}
-          onClose={() => setShowVacationModal(false)}
-          type="staff"
-          entityId={staffId}
-          entityName={`${staffData.firstName} ${staffData.lastName}`}
-        />
+  isOpen={showVacationModal}
+  onClose={() => setShowVacationModal(false)}
+  type="staff"
+  entityId={staffId}
+  entityName={`${staffData.firstName} ${staffData.lastName}`}
+  onVacationsUpdate={setStaffVacations}  // Ajout de cette ligne
+/>
+
       </div>
     </div>
   );
