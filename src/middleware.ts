@@ -1,3 +1,4 @@
+// src/middleware.ts
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
@@ -21,12 +22,9 @@ export async function middleware(request: NextRequest) {
     // Vérification du rôle (nous ajouterons cette partie après)
   }
 
-  // Redirection des utilisateurs connectés depuis /login
-  if (request.nextUrl.pathname.startsWith('/login')) {
-    if (session) {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
-    }
-  }
+  // Pour la page login, ne pas rediriger ici
+  // Le composant LoginForm gèrera la redirection côté client
+  // en fonction du rôle de l'utilisateur
 
   return NextResponse.next();
 }
