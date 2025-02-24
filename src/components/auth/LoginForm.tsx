@@ -12,18 +12,60 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [redirectAttempted, setRedirectAttempted] = useState(false);
+  const [redirectTimeout, setRedirectTimeout] = useState<NodeJS.Timeout | null>(null);
+
+  // Fonction de redirection
+  const redirectUser = (userData: any) => {
+    if (userData?.role === 'super_admin') {
+      router.push('/dashboard/admins');
+    } else if (userData?.role === 'admin' && userData.businessId) {
+      router.push(`/dashboard/business/${userData.businessId}/appointments`);
+    }
+  };
 
   // Rediriger automatiquement l'utilisateur déjà connecté
   useEffect(() => {
-    if (!authLoading && user && userData) {
-      // Si l'utilisateur est déjà connecté, rediriger en fonction du rôle
-      if (userData.role === 'super_admin') {
-        router.push('/dashboard/admins');
-      } else if (userData.role === 'admin' && userData.businessId) {
-        router.push(`/dashboard/business/${userData.businessId}/appointments`);
-      }
+    // Si la redirection a déjà été tentée, ne pas réessayer
+    if (redirectAttempted) return;
+
+    // Si l'authentification est encore en cours de chargement, attendre
+    if (authLoading) return;
+
+    // Si l'utilisateur est connecté et a des données, rediriger
+    if (user && userData) {
+      setRedirectAttempted(true);
+      
+      // Ajouter un délai de sécurité pour la redirection
+      // Cela permet d'éviter les problèmes de timing avec Firebase Auth
+      const timeout = setTimeout(() => {
+        redirectUser(userData);
+      }, 500);
+      
+      setRedirectTimeout(timeout);
+    } else if (!authLoading && !user) {
+      // Si l'authentification est terminée et qu'il n'y a pas d'utilisateur,
+      // marquer qu'une tentative de redirection a été faite
+      setRedirectAttempted(true);
     }
-  }, [user, userData, authLoading, router]);
+
+    // Nettoyer le timeout si le composant est démonté
+    return () => {
+      if (redirectTimeout) {
+        clearTimeout(redirectTimeout);
+      }
+    };
+  }, [user, userData, authLoading, router, redirectAttempted]);
+
+  // Réinitialiser l'état de redirection si l'URL change
+  useEffect(() => {
+    return () => {
+      setRedirectAttempted(false);
+      if (redirectTimeout) {
+        clearTimeout(redirectTimeout);
+      }
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,10 +80,10 @@ export default function LoginForm() {
         // Vérifier le rôle de l'utilisateur
         const userData = await getUserData(result.user.uid);
         
-        if (userData?.role === 'super_admin') {
-          router.push('/dashboard/admins');
-        } else if (userData?.role === 'admin') {
-          router.push(`/dashboard/business/${userData.businessId}/appointments`);
+        if (userData) {
+          // Réinitialiser le flag de redirection pour permettre la redirection après login
+          setRedirectAttempted(false);
+          redirectUser(userData);
         } else {
           setError('Accès non autorisé');
         }
@@ -54,18 +96,32 @@ export default function LoginForm() {
     }
   };
 
+  // Utiliser un temps de chargement maximum pour éviter le chargement infini
+  useEffect(() => {
+    const maxLoadingTime = setTimeout(() => {
+      if (authLoading) {
+        console.log("Loading timeout reached, forcing UI refresh");
+        setRedirectAttempted(true);
+      }
+    }, 5000); // 5 secondes maximum de chargement
+
+    return () => clearTimeout(maxLoadingTime);
+  }, [authLoading]);
+
   // Afficher un indicateur de chargement pendant la vérification de l'authentification
-  if (authLoading) {
+  if (authLoading && !redirectAttempted) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="animate-spin rounded-[10px] h-32 w-32 border-2 border-black"></div>
-        <p className="mt-4 text-black">Chargement...</p>
+        <div className="text-center">
+          <div className="animate-spin rounded-[10px] h-32 w-32 border-2 border-black"></div>
+          <p className="mt-4 text-black">Chargement...</p>
+        </div>
       </div>
     );
   }
 
   // Si l'utilisateur est déjà connecté, ne pas afficher le formulaire (il sera redirigé)
-  if (user && userData) {
+  if (user && userData && !redirectAttempted) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
