@@ -50,7 +50,7 @@ export default function Sidebar() {
   const menuItems = userData?.role === 'super_admin' ? superAdminMenu : adminMenu;
 
   return (
-    <div className="w-[15vw] bg-white h-full p-6">
+    <div className="w-[30vw] bg-white h-full p-6">
       <nav className="space-y-2">
         {menuItems.map((item) => (
           <Link
